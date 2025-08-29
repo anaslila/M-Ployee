@@ -5,3 +5,465 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M-Ployee - Employee Management Platform</title>
     <link rel="icon" href="https://i.postimg.cc/L6nk5XZw/image.png" type="image/png">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="M-Ployee">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/L6nk5XZw/image.png">
+    
+    <!-- Manifest for PWA -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- CSS Links -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- SheetJS for Excel Import/Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- jsPDF for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="https://i.postimg.cc/L6nk5XZw/image.png" alt="M-Ployee Logo" class="logo">
+                <h1>M-Ployee</h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn-secondary" onclick="showSettings()">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
+                <button class="btn-secondary" onclick="showAbout()">
+                    <i class="fas fa-info-circle"></i> About
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="showTab('employees')">
+            <i class="fas fa-users"></i> Employees
+        </button>
+        <button class="tab-btn" onclick="showTab('payroll')">
+            <i class="fas fa-calculator"></i> Payroll
+        </button>
+        <button class="tab-btn" onclick="showTab('salary-slip')">
+            <i class="fas fa-file-invoice-dollar"></i> Salary Slip
+        </button>
+        <button class="tab-btn" onclick="showTab('reimbursement')">
+            <i class="fas fa-receipt"></i> Reimbursement
+        </button>
+        <button class="tab-btn" onclick="showTab('notices')">
+            <i class="fas fa-bullhorn"></i> Notices
+        </button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Employees Tab -->
+        <div id="employees" class="tab-content active">
+            <div class="tab-header">
+                <h2><i class="fas fa-users"></i> Employee Management</h2>
+                <div class="tab-actions">
+                    <button class="btn-primary" onclick="showAddEmployeeModal()">
+                        <i class="fas fa-plus"></i> Add Employee
+                    </button>
+                    <button class="btn-secondary" onclick="importEmployees()">
+                        <i class="fas fa-upload"></i> Import Excel
+                    </button>
+                    <button class="btn-secondary" onclick="exportEmployees('excel')">
+                        <i class="fas fa-download"></i> Export Excel
+                    </button>
+                    <button class="btn-secondary" onclick="exportEmployees('pdf')">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                </div>
+            </div>
+            
+            <div class="search-filter">
+                <input type="text" id="employeeSearch" placeholder="Search employees..." onkeyup="searchEmployees()">
+                <select id="statusFilter" onchange="filterEmployees()">
+                    <option value="">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="On Leave">On Leave</option>
+                </select>
+            </div>
+
+            <div class="employees-grid" id="employeesGrid">
+                <!-- Employee cards will be populated here -->
+            </div>
+        </div>
+
+        <!-- Payroll Tab -->
+        <div id="payroll" class="tab-content">
+            <div class="tab-header">
+                <h2><i class="fas fa-calculator"></i> Payroll Calculations</h2>
+            </div>
+            
+            <div class="payroll-calculator">
+                <div class="calculator-card">
+                    <h3>Salary Calculator</h3>
+                    <div class="form-group">
+                        <label>Select Employee:</label>
+                        <select id="payrollEmployee" onchange="loadEmployeeSalary()">
+                            <option value="">Choose Employee</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Monthly Salary:</label>
+                        <input type="number" id="monthlySalary" placeholder="Enter monthly salary">
+                    </div>
+                    <div class="form-group">
+                        <label>Days Worked:</label>
+                        <input type="number" id="daysWorked" placeholder="Enter days worked" max="31">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Working Days:</label>
+                        <input type="number" id="totalDays" placeholder="Total working days" value="30">
+                    </div>
+                    <button class="btn-primary" onclick="calculateSalary()">Calculate</button>
+                    
+                    <div class="calculation-result" id="calculationResult">
+                        <!-- Results will appear here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Salary Slip Tab -->
+        <div id="salary-slip" class="tab-content">
+            <div class="tab-header">
+                <h2><i class="fas fa-file-invoice-dollar"></i> Salary Slip Generation</h2>
+            </div>
+            
+            <div class="salary-slip-generator">
+                <div class="form-section">
+                    <div class="form-group">
+                        <label>Select Employee:</label>
+                        <select id="salarySlipEmployee">
+                            <option value="">Choose Employee</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Month/Year:</label>
+                        <input type="month" id="salaryMonth">
+                    </div>
+                    <button class="btn-primary" onclick="generateSalarySlip()">Generate Salary Slip</button>
+                </div>
+                
+                <div class="salary-slip-preview" id="salarySlipPreview">
+                    <!-- Salary slip preview will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Reimbursement Tab -->
+        <div id="reimbursement" class="tab-content">
+            <div class="tab-header">
+                <h2><i class="fas fa-receipt"></i> Reimbursement Management</h2>
+                <button class="btn-primary" onclick="showAddReimbursementModal()">
+                    <i class="fas fa-plus"></i> Add Reimbursement
+                </button>
+            </div>
+            
+            <div class="reimbursement-list" id="reimbursementList">
+                <!-- Reimbursement items will be populated here -->
+            </div>
+        </div>
+
+        <!-- Notices Tab -->
+        <div id="notices" class="tab-content">
+            <div class="tab-header">
+                <h2><i class="fas fa-bullhorn"></i> Company Notices</h2>
+                <button class="btn-primary" onclick="showAddNoticeModal()">
+                    <i class="fas fa-plus"></i> Add Notice
+                </button>
+            </div>
+            
+            <div class="notices-list" id="noticesList">
+                <!-- Notices will be populated here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Employee Detail Modal -->
+    <div id="employeeModal" class="modal">
+        <div class="modal-content employee-modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Employee Details</h2>
+                <span class="close" onclick="closeModal('employeeModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="employee-detail-sections">
+                    <div class="detail-nav">
+                        <button class="detail-nav-btn active" onclick="showDetailSection('basic')">Basic Info</button>
+                        <button class="detail-nav-btn" onclick="showDetailSection('contact')">Contact</button>
+                        <button class="detail-nav-btn" onclick="showDetailSection('employment')">Employment</button>
+                        <button class="detail-nav-btn" onclick="showDetailSection('documents')">Documents</button>
+                        <button class="detail-nav-btn" onclick="showDetailSection('salary')">Salary</button>
+                        <button class="detail-nav-btn" onclick="showDetailSection('performance')">Performance</button>
+                    </div>
+                    
+                    <div class="detail-content">
+                        <div id="basic-section" class="detail-section active">
+                            <div class="employee-photo">
+                                <img id="employeePhoto" src="" alt="Employee Photo">
+                                <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
+                                <button class="btn-secondary" onclick="document.getElementById('photoInput').click()">
+                                    <i class="fas fa-camera"></i> Update Photo
+                                </button>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Employee ID:</label>
+                                    <input type="text" id="employeeId" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Full Name:</label>
+                                    <input type="text" id="employeeName">
+                                </div>
+                                <div class="form-group">
+                                    <label>Date of Birth:</label>
+                                    <input type="date" id="dateOfBirth">
+                                </div>
+                                <div class="form-group">
+                                    <label>Employee Status:</label>
+                                    <select id="employeeStatus">
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                        <option value="On Leave">On Leave</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="contact-section" class="detail-section">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Contact Number:</label>
+                                    <input type="tel" id="contactNumber">
+                                </div>
+                                <div class="form-group">
+                                    <label>Email Address:</label>
+                                    <input type="email" id="emailAddress">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Address:</label>
+                                    <textarea id="address" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="employment-section" class="detail-section">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Designation:</label>
+                                    <input type="text" id="designation">
+                                </div>
+                                <div class="form-group">
+                                    <label>Date of Joining:</label>
+                                    <input type="date" id="dateOfJoining">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="documents-section" class="detail-section">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Aadhar Number:</label>
+                                    <input type="text" id="aadharNumber" maxlength="12">
+                                </div>
+                                <div class="form-group">
+                                    <label>PAN Number:</label>
+                                    <input type="text" id="panNumber" maxlength="10">
+                                </div>
+                                <div class="form-group">
+                                    <label>EPF Number:</label>
+                                    <input type="text" id="epfNumber">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="salary-section" class="detail-section">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Monthly Salary:</label>
+                                    <input type="number" id="monthlySalaryDetail" onchange="calculateAnnualSalary()">
+                                </div>
+                                <div class="form-group">
+                                    <label>Annual Salary:</label>
+                                    <input type="number" id="annualSalary" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="performance-section" class="detail-section">
+                            <div class="performance-grid">
+                                <div class="performance-card">
+                                    <h4>Last Month</h4>
+                                    <select id="performanceLastMonth">
+                                        <option value="Excellent">Excellent</option>
+                                        <option value="Good">Good</option>
+                                        <option value="Average">Average</option>
+                                        <option value="Below Average">Below Average</option>
+                                    </select>
+                                </div>
+                                <div class="performance-card">
+                                    <h4>Last Quarter</h4>
+                                    <select id="performanceLastQuarter">
+                                        <option value="Excellent">Excellent</option>
+                                        <option value="Good">Good</option>
+                                        <option value="Average">Average</option>
+                                        <option value="Below Average">Below Average</option>
+                                    </select>
+                                </div>
+                                <div class="performance-card">
+                                    <h4>Last Year</h4>
+                                    <select id="performanceLastYear">
+                                        <option value="Excellent">Excellent</option>
+                                        <option value="Good">Good</option>
+                                        <option value="Average">Average</option>
+                                        <option value="Below Average">Below Average</option>
+                                    </select>
+                                </div>
+                                <div class="performance-card">
+                                    <h4>Overall</h4>
+                                    <select id="performanceOverall">
+                                        <option value="Excellent">Excellent</option>
+                                        <option value="Good">Good</option>
+                                        <option value="Average">Average</option>
+                                        <option value="Below Average">Below Average</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('employeeModal')">Cancel</button>
+                <button class="btn-primary" onclick="saveEmployee()">Save Employee</button>
+                <button class="btn-danger" onclick="deleteEmployee()" id="deleteBtn" style="display: none;">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Company Settings</h2>
+                <span class="close" onclick="closeModal('settingsModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Company Name:</label>
+                        <input type="text" id="companyName" placeholder="Enter company name">
+                    </div>
+                    <div class="form-group">
+                        <label>Employer Name:</label>
+                        <input type="text" id="employerName" placeholder="Enter employer name">
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Number:</label>
+                        <input type="tel" id="companyContact" placeholder="Enter contact number">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Company Address:</label>
+                        <textarea id="companyAddress" rows="3" placeholder="Enter company address"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Company Logo:</label>
+                        <input type="file" id="companyLogoInput" accept="image/*" onchange="handleCompanyLogoUpload(event)">
+                        <div class="logo-preview" id="logoPreview"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('settingsModal')">Cancel</button>
+                <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>About M-Ployee</h2>
+                <span class="close" onclick="closeModal('aboutModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="about-content">
+                    <div class="app-info">
+                        <img src="https://i.postimg.cc/L6nk5XZw/image.png" alt="M-Ployee Logo" class="about-logo">
+                        <h3>M-Ployee v1.0</h3>
+                        <p class="tagline">Professional Employee Management Platform</p>
+                    </div>
+                    <div class="features-list">
+                        <h4>Features:</h4>
+                        <ul>
+                            <li>Complete Employee Data Management</li>
+                            <li>Payroll Calculations</li>
+                            <li>Salary Slip Generation</li>
+                            <li>Reimbursement Tracking</li>
+                            <li>Company Notices</li>
+                            <li>Excel Import/Export</li>
+                            <li>PDF Export</li>
+                            <li>Mobile Responsive</li>
+                            <li>PWA Support</li>
+                        </ul>
+                    </div>
+                    <div class="app-details">
+                        <p><strong>App Module:</strong> Lifetime Free</p>
+                        <p><strong>Created by:</strong> Anas Lila</p>
+                        <p><strong>Company:</strong> AL Softwares</p>
+                        <p><strong>Version:</strong> 1.0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="closeModal('aboutModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PWA Install Banner -->
+    <div id="installBanner" class="install-banner" style="display: none;">
+        <div class="install-content">
+            <img src="https://i.postimg.cc/L6nk5XZw/image.png" alt="M-Ployee" class="install-icon">
+            <div class="install-text">
+                <h4>Install M-Ployee</h4>
+                <p>Add to home screen for better experience</p>
+            </div>
+            <div class="install-actions">
+                <button class="btn-primary" onclick="installPWA()">Install</button>
+                <button class="btn-secondary" onclick="dismissInstallBanner()">Maybe Later</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="importFileInput" accept=".xlsx,.xls" style="display: none;" onchange="handleFileImport(event)">
+
+    <script src="script.js"></script>
+</body>
+</html>
