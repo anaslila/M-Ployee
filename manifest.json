@@ -1,0 +1,33 @@
+{
+    "name": "M-Ployee - Employee Management Platform",
+    "short_name": "M-Ployee",
+    "description": "Professional Employee Management Platform for Small Business Owners",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#2563eb",
+    "orientation": "portrait-primary",
+    "categories": ["business", "productivity"],
+    "lang": "en",
+    "icons": [
+        {
+            "src": "https://i.postimg.cc/L6nk5XZw/image.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "https://i.postimg.cc/L6nk5XZw/image.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "https://i.postimg.cc/L6nk5XZw/image.png",
+            "sizes": "1280x720",
+            "type": "image/png"
+        }
+    ]
+}
